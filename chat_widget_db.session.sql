@@ -1,0 +1,1 @@
+INSERT into users (id, email, password, role, created_at, updated_at) values (2, 'agente@example.com', 'agente123', 'USER', NOW(), NOW());
