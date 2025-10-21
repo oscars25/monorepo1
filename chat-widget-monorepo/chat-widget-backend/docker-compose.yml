@@ -6,11 +6,11 @@ services:
     image: pee-java_app:1.0.0
     build: .
     ports:
-      -8080:8080
+      - "8080:8080"
     environment:
-      - DATABASE_URL = jdbc:postgres://java_db:5432/chat_widget_db
-      - DATABASE_USERNAME = postgres
-      - DATABASE_PASSWORD = postgres
+      - DATABASE_URL=jdbc:postgresql://java_db:5432/chat_widget_db
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=postgres
     depends_on:
       - java_db
 
@@ -18,9 +18,8 @@ services:
     container_name: java_db
     image: postgres:12
     ports:
-      -5432:5432
+      - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: chat_widget_db
-

@@ -1,6 +1,14 @@
+# Usa una imagen ligera con Java 17
 FROM openjdk:17-jdk-alpine
-COPY target/chat-widget-backend-0.0.1-SNAPSHOT.jar java-app.jar
-ENTRYPOINT [ "java", "-java", "java-app.jar" ]
 
+# Crea un directorio de trabajo dentro del contenedor
+WORKDIR /app
 
+# Copia el archivo JAR compilado desde tu máquina al contenedor
+COPY target/chat-widget-backend-0.0.1-SNAPSHOT.jar app.jar
 
+# Expone el puerto 8080 (opcional pero útil para documentación)
+EXPOSE 8080
+
+# Define el comando de arranque
+ENTRYPOINT ["java", "-jar", "app.jar"]
