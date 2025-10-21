@@ -1,14 +1,17 @@
-# Usa una imagen ligera con Java 17
-FROM openjdk:17-jdk-alpine
+# Etapa final minimalista con JRE 17
+FROM eclipse-temurin:17-jre-alpine
 
-# Crea un directorio de trabajo dentro del contenedor
+# Carpeta de trabajo
 WORKDIR /app
 
-# Copia el archivo JAR compilado desde tu máquina al contenedor
+# Copia tu JAR construido por Maven
 COPY target/chat-widget-backend-0.0.1-SNAPSHOT.jar app.jar
 
-# Expone el puerto 8080 (opcional pero útil para documentación)
+# Documenta el puerto
 EXPOSE 8080
 
-# Define el comando de arranque
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Opcional: flags por variable de entorno
+ENV JAVA_OPTS=""
+
+# Arranque
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

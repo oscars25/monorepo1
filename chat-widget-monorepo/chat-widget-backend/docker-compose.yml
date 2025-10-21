@@ -1,25 +1,38 @@
 version: '3.9'
 
 services:
-  java_app:
-    container_name: java_app
-    image: pee-java_app:1.0.0
-    build: .
+  java_db:
+    image: postgres:15
+    container_name: java_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: chat_widget_db   # <- se crea automáticamente esta BD
     ports:
-      - "8080:8080"
+      - "5433:5432"                 # <- usa 5433 en tu host para evitar conflictos con Postgres local
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d chat_widget_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  java_app:
+    build: .
+    image: pee-java_app:1.0.0
+    container_name: java_app
+    depends_on:
+      java_db:
+        condition: service_healthy    # <- espera a que Postgres esté listo
     environment:
       - DATABASE_URL=jdbc:postgresql://java_db:5432/chat_widget_db
       - DATABASE_USERNAME=postgres
       - DATABASE_PASSWORD=postgres
-    depends_on:
-      - java_db
-
-  java_db:
-    container_name: java_db
-    image: postgres:12
+      - JAVA_OPTS=-XX:MaxRAMPercentage=75.0
     ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: chat_widget_db
+      - "8080:8080"
+    restart: on-failure
+
+volumes:
+  db_data:
