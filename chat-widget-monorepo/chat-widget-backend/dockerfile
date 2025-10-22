@@ -1,0 +1,17 @@
+# Etapa final minimalista con JRE 17
+FROM eclipse-temurin:17-jre-alpine
+
+# Carpeta de trabajo
+WORKDIR /app
+
+# Copia tu JAR construido por Maven
+COPY target/chat-widget-backend-0.0.1-SNAPSHOT.jar app.jar
+
+# Documenta el puerto
+EXPOSE 8080
+
+# Opcional: flags por variable de entorno
+ENV JAVA_OPTS=""
+
+# Arranque
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
