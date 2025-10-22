@@ -1,17 +1,19 @@
-# Etapa final minimalista con JRE 17
-FROM eclipse-temurin:17-jre-alpine
+# ---- Etapa 1: construir el proyecto ----
+FROM maven:3.9.8-eclipse-temurin-17 AS builder
 
-# Carpeta de trabajo
 WORKDIR /app
 
-# Copia tu JAR construido por Maven
-COPY target/chat-widget-backend-0.0.1-SNAPSHOT.jar app.jar
+# Copiamos el pom.xml y descargamos dependencias
+COPY pom.xml .
+RUN mvn dependency:go-offline
 
-# Documenta el puerto
+# Copiamos el resto del código y construimos
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+# ---- Etapa 2: imagen final de ejecución ----
+FROM eclipse-temurin:17-jdk
+WORKDIR /app
+COPY --from=builder /app/target/chat-widget-backend-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
-
-# Opcional: flags por variable de entorno
-ENV JAVA_OPTS=""
-
-# Arranque
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
