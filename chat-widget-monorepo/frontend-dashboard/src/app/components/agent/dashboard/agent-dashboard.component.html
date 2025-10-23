@@ -1,0 +1,108 @@
+<app-header [user]="user" (logout)="logout()"></app-header>
+
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1>Panel de Agente</h1>
+    <p>Atiende a los visitantes en tiempo real</p>
+  </div>
+
+  <div class="dashboard-content">
+    <div class="sessions-panel">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Tus Sesiones</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div *ngIf="loading" class="loading">
+            <mat-spinner></mat-spinner>
+          </div>
+
+          <div *ngIf="!loading && sessions.length === 0" class="empty-state">
+            <p>No tienes sesiones asignadas en este momento.</p>
+          </div>
+
+          <div *ngIf="!loading && sessions.length > 0">
+            <mat-table [dataSource]="sessions">
+              <ng-container matColumnDef="id">
+                <mat-header-cell *matHeaderCellDef>ID</mat-header-cell>
+                <mat-cell *matCellDef="let session">{{ session.id }}</mat-cell>
+              </ng-container>
+
+              <ng-container matColumnDef="websiteUrl">
+                <mat-header-cell *matHeaderCellDef>Sitio Web</mat-header-cell>
+                <mat-cell *matCellDef="let session">{{ session.websiteUrl }}</mat-cell>
+              </ng-container>
+
+              <ng-container matColumnDef="visitorName">
+                <mat-header-cell *matHeaderCellDef>Visitante</mat-header-cell>
+                <mat-cell *matCellDef="let session">{{ session.visitorName }}</mat-cell>
+              </ng-container>
+
+              <ng-container matColumnDef="visitorEmail">
+                <mat-header-cell *matHeaderCellDef>Email</mat-header-cell>
+                <mat-cell *matCellDef="let session">{{ session.visitorEmail }}</mat-cell>
+              </ng-container>
+
+              <ng-container matColumnDef="status">
+                <mat-header-cell *matHeaderCellDef>Estado</mat-header-cell>
+                <mat-cell *matCellDef="let session">
+                  <mat-chip color="primary">{{ session.status }}</mat-chip>
+                </mat-cell>
+              </ng-container>
+
+              <ng-container matColumnDef="actions">
+                <mat-header-cell *matHeaderCellDef>Acciones</mat-header-cell>
+                <mat-cell *matCellDef="let session">
+                  <button mat-icon-button color="primary" (click)="selectSession(session)" title="Abrir Chat">
+                    <mat-icon>chat</mat-icon>
+                  </button>
+                </mat-cell>
+              </ng-container>
+
+              <mat-header-row *matHeaderRowDef="['id', 'websiteUrl', 'visitorName', 'visitorEmail', 'status', 'actions']"></mat-header-row>
+              <mat-row *matRowDef="let row; columns: ['id', 'websiteUrl', 'visitorName', 'visitorEmail', 'status', 'actions'];"></mat-row>
+            </mat-table>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="chat-panel" *ngIf="selectedSession">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Chat con {{ selectedSession.visitorName }}</mat-card-title>
+          <mat-card-subtitle>{{ selectedSession.websiteUrl }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="messages-container" *ngIf="!messageLoading">
+            <div *ngFor="let message of messages" class="message" [ngClass]="{'agent-message': message.isFromAgent, 'visitor-message': !message.isFromAgent}">
+              <div class="message-content">
+                {{ message.content }}
+              </div>
+              <div class="message-meta">
+                {{ message.user.fullName }} - {{ message.createdAt | date:'short' }}
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="messageLoading" class="loading">
+            <mat-spinner></mat-spinner>
+          </div>
+
+          <div class="message-input" *ngIf="!messageLoading">
+            <mat-form-field appearance="fill" class="message-field">
+              <mat-label>Escribe tu mensaje...</mat-label>
+              <input #messageInput [(ngModel)]="newMessage" (keyup.enter)="sendMessage()" placeholder="Escribe tu mensaje aquí...">
+            </mat-form-field>
+            <button mat-raised-button color="primary" (click)="sendMessage()" [disabled]="!newMessage.trim()">
+              Enviar
+            </button>
+            <button mat-raised-button color="warn" (click)="closeSession()">
+              Cerrar Sesión
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

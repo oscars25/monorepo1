@@ -1,0 +1,143 @@
+<app-header [user]="user" (logout)="logout()"></app-header>
+
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1>Panel de Administración</h1>
+    <p>Administra usuarios y mensajes del sistema</p>
+  </div>
+
+  <div class="dashboard-content">
+    <mat-tab-group>
+      <!-- Pestaña de Gestión de Usuarios -->
+      <mat-tab label="Gestión de Usuarios">
+        <div class="actions-bar">
+          <button mat-raised-button color="primary" (click)="openUserDialog()">
+            <mat-icon>person_add</mat-icon>
+            Nuevo Usuario
+          </button>
+        </div>
+
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Lista de Usuarios</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div *ngIf="loading" class="loading">
+              <mat-spinner></mat-spinner>
+            </div>
+
+            <div *ngIf="!loading && users.length === 0" class="empty-state">
+              <p>No hay usuarios en el sistema.</p>
+            </div>
+
+            <div *ngIf="!loading && users.length > 0">
+              <mat-table [dataSource]="users">
+                <ng-container matColumnDef="id">
+                  <mat-header-cell *matHeaderCellDef>ID</mat-header-cell>
+                  <mat-cell *matCellDef="let user">{{ user.id }}</mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="username">
+                  <mat-header-cell *matHeaderCellDef>Usuario</mat-header-cell>
+                  <mat-cell *matCellDef="let user">{{ user.username }}</mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="email">
+                  <mat-header-cell *matHeaderCellDef>Email</mat-header-cell>
+                  <mat-cell *matCellDef="let user">{{ user.email }}</mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="fullName">
+                  <mat-header-cell *matHeaderCellDef>Nombre</mat-header-cell>
+                  <mat-cell *matCellDef="let user">{{ user.fullName }}</mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="role">
+                  <mat-header-cell *matHeaderCellDef>Rol</mat-header-cell>
+                  <mat-cell *matCellDef="let user">
+                    <mat-chip [color]="getRoleColor(user.role)">{{ user.role }}</mat-chip>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                  <mat-header-cell *matHeaderCellDef>Acciones</mat-header-cell>
+                  <mat-cell *matCellDef="let user">
+                    <button mat-icon-button color="primary" (click)="editUser(user)" title="Editar">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="deleteUser(user.id)" title="Eliminar">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </mat-cell>
+                </ng-container>
+
+                <mat-header-row *matHeaderRowDef="['id', 'username', 'email', 'fullName', 'role', 'actions']"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: ['id', 'username', 'email', 'fullName', 'role', 'actions'];"></mat-row>
+              </mat-table>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </mat-tab>
+
+      <!-- Pestaña de Mensajes -->
+      <mat-tab label="Mensajes">
+        <div class="messages-container">
+          <div class="sessions-section">
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>Sesiones Activas</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div *ngIf="loadingSessions" class="loading">
+                  <mat-spinner></mat-spinner>
+                </div>
+
+                <div *ngIf="!loadingSessions && sessions.length === 0" class="empty-state">
+                  <p>No hay sesiones activas.</p>
+                </div>
+
+                <div *ngIf="!loadingSessions && sessions.length > 0">
+                  <mat-accordion>
+                    <mat-expansion-panel *ngFor="let session of sessions" (opened)="loadMessages(session.id)">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          {{ session.visitorName }}
+                        </mat-panel-title>
+                        <mat-panel-description>
+                          {{ session.visitorEmail }} - {{ session.status }}
+                        </mat-panel-description>
+                      </mat-expansion-panel-header>
+
+                      <div *ngIf="loadingMessages[session.id]" class="loading">
+                        <mat-spinner diameter="30"></mat-spinner>
+                      </div>
+
+                      <div *ngIf="!loadingMessages[session.id] && messages[session.id] && messages[session.id].length > 0">
+                        <mat-list>
+                          <mat-list-item *ngFor="let message of messages[session.id]">
+                            <div matLine>{{ message.content }}</div>
+                            <div matLine class="message-meta">
+                              <span class="message-author">{{ message.user.fullName || message.user.username }}</span>
+                              <span class="message-date">{{ formatDate(message.createdAt) }}</span>
+                            </div>
+                            <mat-icon [color]="message.isFromAgent ? 'primary' : 'accent'">
+                              {{ message.isFromAgent ? 'support_agent' : 'person' }}
+                            </mat-icon>
+                          </mat-list-item>
+                        </mat-list>
+                      </div>
+
+                      <div *ngIf="!loadingMessages[session.id] && (!messages[session.id] || messages[session.id].length === 0)" class="empty-state">
+                        <p>No hay mensajes en esta sesión.</p>
+                      </div>
+                    </mat-expansion-panel>
+                  </mat-accordion>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

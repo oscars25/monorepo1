@@ -1,0 +1,54 @@
+<!-- Botón flotante para abrir el chat -->
+<div class="chat-button" (click)="toggleWidget()">
+  <mat-icon>chat</mat-icon>
+  <span class="badge" *ngIf="messages.length > 0">{{ messages.length }}</span>
+</div>
+
+<!-- Widget de chat -->
+<div class="chat-widget" *ngIf="widgetVisible">
+  <div class="chat-header">
+    <div class="chat-title">
+      <span class="status-dot" [ngClass]="{'online': true}"></span>
+      Soporte en línea
+    </div>
+    <div class="chat-actions">
+      <button mat-icon-button (click)="toggleMinimize()" title="Minimizar">
+        <mat-icon>{{ minimized ? 'fullscreen' : 'fullscreen_exit' }}</mat-icon>
+      </button>
+      <button mat-icon-button (click)="toggleWidget()" title="Cerrar">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <div class="chat-body" *ngIf="!minimized">
+    <div *ngIf="loading" class="loading">
+      <mat-spinner></mat-spinner>
+      <p>Iniciando chat...</p>
+    </div>
+
+    <div *ngIf="!loading" class="chat-container">
+      <div class="messages-container">
+        <div *ngFor="let message of messages" class="message" [ngClass]="{'agent-message': message.isFromAgent, 'visitor-message': !message.isFromAgent}">
+          <div class="message-content">
+            {{ message.content }}
+          </div>
+          <div class="message-meta">
+            {{ message.user.fullName }} - {{ message.createdAt | date:'short' }}
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input">
+        <mat-form-field appearance="fill" class="message-field">
+          <mat-label>Escribe tu mensaje...</mat-label>
+          <input matInput [(ngModel)]="newMessage" (keyup.enter)="sendMessage()" placeholder="Escribe tu mensaje aquí...">
+        </mat-form-field>
+        <button mat-raised-button color="primary" (click)="sendMessage()" [disabled]="!newMessage.trim() || messageLoading">
+          <span *ngIf="!messageLoading">Enviar</span>
+          <mat-spinner *ngIf="messageLoading" diameter="20"></mat-spinner>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
