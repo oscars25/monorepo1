@@ -2,19 +2,20 @@
 # Imagen base para construir la aplicación Angular
 FROM node:20-alpine AS build
 WORKDIR /app
+
+# Copia los archivos de paquetes
 COPY package*.json ./
+
 # Angular necesita la CLI globalmente
-# ...
 RUN npm install -g @angular/cli
 # Usamos --legacy-peer-deps para ignorar los conflictos de @angular/cdk
 RUN npm install --legacy-peer-deps
-# ...
 
 # Copia el código fuente
 COPY . .
 
 # Comando de construcción de Angular
-# Asume que 'ng build' compila los archivos estáticos en la carpeta 'dist'
+# Esto compila los archivos estáticos en la ruta: /app/dist/frontend-dashboard/browser
 RUN ng build
 
 # -----------------------------------------------------------
@@ -22,9 +23,15 @@ RUN ng build
 # 2. ETAPA DE EJECUCIÓN (RUNTIME STAGE)
 # Usamos una imagen ligera de Nginx para servir la aplicación estática
 FROM nginx:alpine
-# Copia los archivos construidos desde la etapa anterior
-COPY --from=build /app/dist/frontend-dashboard /usr/share/nginx/html
-# Copia la configuración de Nginx (se asume que la crearás en el siguiente paso)
+
+# *************************************************************
+# ¡LA CORRECCIÓN ESTÁ AQUÍ!
+# Copia los archivos construidos desde la etapa anterior. 
+# La ruta correcta es generalmente /app/dist/nombre-del-proyecto/browser
+COPY --from=build /app/dist/frontend-dashboard/browser /usr/share/nginx/html
+# *************************************************************
+
+# Copia la configuración de Nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
