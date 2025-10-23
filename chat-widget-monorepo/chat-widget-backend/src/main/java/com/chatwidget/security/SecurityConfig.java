@@ -43,6 +43,11 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/ws/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
+                // Permitir el acceso público a las sesiones y mensajes para el widget
+                .requestMatchers("/api/sessions").permitAll()
+                .requestMatchers("/api/sessions/**").permitAll()
+                .requestMatchers("/api/messages").permitAll()
+                .requestMatchers("/api/messages/**").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

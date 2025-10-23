@@ -33,6 +33,9 @@ public class Message {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
+    public String getVisitorName() { return visitorName; }
+    public void setVisitorName(String visitorName) { this.visitorName = visitorName; }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -60,4 +63,7 @@ public class Message {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
+
+    @Column(name = "visitor_name")
+    private String visitorName;
 }
