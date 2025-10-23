@@ -1,8 +1,31 @@
-# EJEMPLO: Si usas Node.js para el Backend
-FROM node:20-alpine
+# 1. ETAPA DE CONSTRUCCIÓN (BUILD STAGE)
+# Usamos una imagen de Java con Maven/Gradle para compilar el proyecto
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
+COPY pom.xml .
+# O si usas Gradle: COPY build.gradle settings.gradle ./
+RUN mvn dependency:go-offline # Descarga dependencias para cachearlas
+# O si usas Gradle: RUN gradle dependencies --scan
+
+# Copia el código fuente completo del backend
 COPY . .
+
+# Compila el proyecto Spring Boot y crea el archivo JAR ejecutable
+RUN mvn package -DskipTests # O si usas Gradle: RUN gradle build -x test
+
+# -----------------------------------------------------------
+
+# 2. ETAPA DE EJECUCIÓN (RUNTIME STAGE)
+# Usamos una imagen ligera de Java para ejecutar el JAR
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+
+# Copia el JAR del proyecto compilado en la etapa 'build'
+# Ajusta el nombre del JAR si es diferente (ej. si usas Gradle)
+COPY --from=build /app/target/*.jar app.jar
+
+# Expone el puerto por defecto de Spring Boot
 EXPOSE 8080
-CMD ["npm", "start"]
+
+# Comando para ejecutar la aplicación Spring Boot
+ENTRYPOINT ["java", "-jar", "app.jar"]

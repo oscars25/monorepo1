@@ -1,9 +1,27 @@
-# EJEMPLO: Si usas React/Vue para el Frontend
-FROM node:20-alpine
+# 1. ETAPA DE CONSTRUCCIÓN (BUILD STAGE)
+# Imagen base para construir la aplicación Angular
+FROM node:20-alpine AS build
 WORKDIR /app
 COPY package*.json ./
+# Angular necesita la CLI globalmente
+RUN npm install -g @angular/cli
 RUN npm install
+
+# Copia el código fuente
 COPY . .
-# Asume que el servidor de desarrollo se ejecuta en el puerto 3000
-EXPOSE 3000 
-CMD ["npm", "run", "dev"] # O 'npm start' / 'npm run serve'
+
+# Comando de construcción de Angular
+# Asume que 'ng build' compila los archivos estáticos en la carpeta 'dist'
+RUN ng build
+
+# -----------------------------------------------------------
+
+# 2. ETAPA DE EJECUCIÓN (RUNTIME STAGE)
+# Usamos una imagen ligera de Nginx para servir la aplicación estática
+FROM nginx:alpine
+# Copia los archivos construidos desde la etapa anterior
+COPY --from=build /app/dist/frontend-dashboard /usr/share/nginx/html
+# Copia la configuración de Nginx (se asume que la crearás en el siguiente paso)
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

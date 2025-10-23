@@ -1,50 +1,38 @@
 version: '3.8'
 
 services:
-  # ------------------------------------
-  # 1. SERVICIO DE BASE DE DATOS 
-  # ------------------------------------
+  # ... (Servicio DB sin cambios) ...
   db:
-    image: postgres:latest 
-    restart: always
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: monorepo_db
-    ports:
-      - "5432:5432" # Puerto estándar de PostgreSQL
-    volumes:
-      - db-data:/var/lib/postgresql/data
+    # ... (Configuración de DB) ...
 
   # ------------------------------------
-  # 2. SERVICIO BACKEND
+  # 2. SERVICIO BACKEND (Sin cambios)
   # ------------------------------------
   backend:
     build:
-      context: ./chat-widget-monorepo/chat-widget-backend # RUTA AL BACKEND
-      dockerfile: Dockerfile.backend 
+      context: ./chat-widget-monorepo/chat-widget-backend
+      dockerfile: Dockerfile.backend
     ports:
-      - "8080:8080" # Puerto común para backend
+      - "8080:8080" # El puerto de Spring Boot
     depends_on:
-      - db # Asegura que la BD se inicie primero
+      - db 
     volumes:
       - ./chat-widget-monorepo/chat-widget-backend:/app # Mapeo para desarrollo
-    environment:
-      DATABASE_URL: postgres://user:password@db:5432/monorepo_db # Conexión al servicio 'db'
 
   # ------------------------------------
-  # 3. SERVICIO FRONTEND
+  # 3. SERVICIO FRONTEND (Cambios en build y ports)
   # ------------------------------------
   frontend:
     build:
-      context: ./chat-widget-monorepo/frontend-dashboard # RUTA AL FRONTEND
-      dockerfile: Dockerfile.frontend 
+      context: ./chat-widget-monorepo/frontend-dashboard
+      dockerfile: Dockerfile.frontend
     ports:
-      - "3000:3000" # Puerto común para frontend (ej. React/Vue)
+      - "80:80" # Mapea el puerto 80 del contenedor al puerto 80 de tu máquina
+    depends_on:
+      - backend # El frontend debe iniciar después del backend para comunicación
     volumes:
-      - ./chat-widget-monorepo/frontend-dashboard:/app # Mapeo para desarrollo
-    # depends_on: # Descomentar si el frontend necesita esperar al backend
-    #  - backend
-
+      - ./chat-widget-monorepo/frontend-dashboard/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # NOTA: En un flujo de producción, no es común montar el código fuente completo del frontend con Angular/Nginx.
+      # Para el desarrollo, usaremos el puerto 80.
 volumes:
   db-data:
