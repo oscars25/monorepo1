@@ -1,0 +1,9 @@
+# EJEMPLO: Si usas React/Vue para el Frontend
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+# Asume que el servidor de desarrollo se ejecuta en el puerto 3000
+EXPOSE 3000 
+CMD ["npm", "run", "dev"] # O 'npm start' / 'npm run serve'

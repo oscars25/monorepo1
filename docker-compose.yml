@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # ------------------------------------
+  # 1. SERVICIO DE BASE DE DATOS 
+  # ------------------------------------
+  db:
+    image: postgres:latest 
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: monorepo_db
+    ports:
+      - "5432:5432" # Puerto estándar de PostgreSQL
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  # ------------------------------------
+  # 2. SERVICIO BACKEND
+  # ------------------------------------
+  backend:
+    build:
+      context: ./chat-widget-monorepo/chat-widget-backend # RUTA AL BACKEND
+      dockerfile: Dockerfile.backend 
+    ports:
+      - "8080:8080" # Puerto común para backend
+    depends_on:
+      - db # Asegura que la BD se inicie primero
+    volumes:
+      - ./chat-widget-monorepo/chat-widget-backend:/app # Mapeo para desarrollo
+    environment:
+      DATABASE_URL: postgres://user:password@db:5432/monorepo_db # Conexión al servicio 'db'
+
+  # ------------------------------------
+  # 3. SERVICIO FRONTEND
+  # ------------------------------------
+  frontend:
+    build:
+      context: ./chat-widget-monorepo/frontend-dashboard # RUTA AL FRONTEND
+      dockerfile: Dockerfile.frontend 
+    ports:
+      - "3000:3000" # Puerto común para frontend (ej. React/Vue)
+    volumes:
+      - ./chat-widget-monorepo/frontend-dashboard:/app # Mapeo para desarrollo
+    # depends_on: # Descomentar si el frontend necesita esperar al backend
+    #  - backend
+
+volumes:
+  db-data:
