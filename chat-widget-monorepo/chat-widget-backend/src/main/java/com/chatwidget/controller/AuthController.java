@@ -1,159 +1,123 @@
 package com.chatwidget.controller;
 
-import com.chatwidget.entity.User;
-import com.chatwidget.security.JwtService;
-import com.chatwidget.service.AuthService;
-import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
-
+import com.chatwidget.service.AuthService;
+import com.chatwidget.security.JwtService;
+import com.chatwidget.entity.User;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager;
-    private final AuthService authService;
+    private final AuthenticationManager authManager;
     private final JwtService jwtService;
+    private final AuthService authService;
 
-    public AuthController(AuthenticationManager authenticationManager, AuthService authService, JwtService jwtService) {
-        this.authenticationManager = authenticationManager;
-        this.authService = authService;
+    public AuthController(AuthenticationManager authManager, JwtService jwtService, AuthService authService) {
+        this.authManager = authManager;
         this.jwtService = jwtService;
+        this.authService = authService;
+    }
+
+    @PostMapping("/login-test")
+    public ResponseEntity<?> loginTest(@Valid @RequestBody LoginRequest request) {
+        try {
+            authManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+            );
+            return ResponseEntity.ok(new LoginResponse(true, "Authenticated"));
+        } catch (AuthenticationException ex) {
+            return ResponseEntity.status(401).body(new LoginResponse(false, "Invalid credentials"));
+        }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest request) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
+        try {
+            authManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+            );
 
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        
-        // Obtener el usuario completo para incluir sus datos en el token
-        User user = authService.getUserByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-                
-        // Crear claims adicionales para el token
-        Map<String, Object> claims = Map.of(
-            "id", user.getId(),
-            "username", user.getUsername(),
-            "email", user.getEmail(),
-            "role", user.getRole(),
-            "fullName", user.getFullName()
-        );
-        
-        // Generar token con claims adicionales
-        String token = jwtService.generateToken(userDetails, claims);
+            User user = authService.getUserByUsername(request.getUsername())
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado después de autenticar"));
 
-        Map<String, Object> response = Map.of(
-                "token", token,
-                "user", Map.of(
-                        "id", user.getId(),
-                        "username", user.getUsername(),
-                        "email", user.getEmail(),
-                        "role", user.getRole(),
-                        "fullName", user.getFullName()
-                )
-        );
+            // Incluir claims útiles para el frontend
+            Map<String, Object> extraClaims = Map.of(
+                    "id", user.getId(),
+                    "username", user.getUsername(),
+                    "email", user.getEmail(),
+                    "role", user.getRole().name(),
+                    "fullName", user.getFullName()
+            );
 
-        return ResponseEntity.ok(response);
+            String token = jwtService.generateToken(user, extraClaims);
+
+            return ResponseEntity.ok(new AuthResponse(token, new UserDto(user)));
+        } catch (AuthenticationException ex) {
+            return ResponseEntity.status(401).body(new LoginResponse(false, "Invalid credentials"));
+        }
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<Map<String, Object>> register(@RequestBody RegisterRequest request) {
-        // Convertir el role de String a User.Role
-        User.Role userRole = User.Role.valueOf(request.getRole().toUpperCase());
-        
-        User user = authService.createUser(
-                request.getUsername(),
-                request.getPassword(),
-                request.getEmail(),
-                userRole,
-                request.getFullName()
-        );
-
-        // Crear claims adicionales para el token
-        Map<String, Object> claims = Map.of(
-            "id", user.getId(),
-            "username", user.getUsername(),
-            "email", user.getEmail(),
-            "role", user.getRole(),
-            "fullName", user.getFullName()
-        );
-        
-        // Generar token con claims adicionales
-        String token = jwtService.generateToken(user, claims);
-
-        Map<String, Object> response = Map.of(
-                "token", token,
-                "user", Map.of(
-                        "id", user.getId(),
-                        "username", user.getUsername(),
-                        "email", user.getEmail(),
-                        "role", user.getRole(),
-                        "fullName", user.getFullName()
-                )
-        );
-
-        return ResponseEntity.ok(response);
+    public static class AuthResponse {
+        public String token;
+        public UserDto user;
+        public AuthResponse(String token, UserDto user) {
+            this.token = token;
+            this.user = user;
+        }
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<Map<String, Object>> getCurrentUser(Authentication authentication) {
-        String username = authentication.getName();
-        User user = authService.getUserByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
-        Map<String, Object> response = Map.of(
-                "id", user.getId(),
-                "username", user.getUsername(),
-                "email", user.getEmail(),
-                "role", user.getRole(),
-                "fullName", user.getFullName()
-        );
-
-        return ResponseEntity.ok(response);
+    public static class UserDto {
+        public Long id;
+        public String username;
+        public String email;
+        public String role;
+        public String fullName;
+        public UserDto(User u) {
+            this.id = u.getId();
+            this.username = u.getUsername();
+            this.email = u.getEmail();
+            this.role = u.getRole() != null ? u.getRole().name() : null;
+            this.fullName = u.getFullName();
+        }
     }
 
     public static class LoginRequest {
+        @NotBlank
         private String username;
+        @NotBlank
         private String password;
 
-        // Getters y setters
-        public String getUsername() { return username; }
-        public void setUsername(String username) { this.username = username; }
+        // Getters necesarios por compilador / frameworks
+        public String getUsername() {
+            return username;
+        }
+        public String getPassword() {
+            return password;
+        }
 
-        public String getPassword() { return password; }
-        public void setPassword(String password) { this.password = password; }
+        // Setters (Jackson los usa al deserializar JSON)
+        public void setUsername(String username) {
+            this.username = username;
+        }
+        public void setPassword(String password) {
+            this.password = password;
+        }
     }
 
-    public static class RegisterRequest {
-        private String username;
-        private String password;
-        private String email;
-        private String role;
-        private String fullName;
-
-        // Getters y setters
-        public String getUsername() { return username; }
-        public void setUsername(String username) { this.username = username; }
-
-        public String getPassword() { return password; }
-        public void setPassword(String password) { this.password = password; }
-
-        public String getEmail() { return email; }
-        public void setEmail(String email) { this.email = email; }
-
-        public String getRole() { return role; }
-        public void setRole(String role) { this.role = role; }
-
-        public String getFullName() { return fullName; }
-        public void setFullName(String fullName) { this.fullName = fullName; }
+    public static class LoginResponse {
+        public boolean authenticated;
+        public String message;
+        public LoginResponse(boolean authenticated, String message) {
+            this.authenticated = authenticated;
+            this.message = message;
+        }
     }
 }
