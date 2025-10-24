@@ -1,0 +1,78 @@
+<app-header [user]="user" (logout)="logout()"></app-header>
+
+<div class="admin-nav">
+  <a mat-raised-button color="primary" routerLink="/admin/users" routerLinkActive="active-link">
+    <mat-icon>people</mat-icon>
+    Gestión de Usuarios
+  </a>
+</div>
+
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1>Panel de Administración</h1>
+    <p>Gestiona las sesiones de chat y asigna agentes</p>
+  </div>
+
+  <div class="dashboard-content">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Sesiones Activas</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div *ngIf="loading" class="loading">
+          <mat-spinner></mat-spinner>
+        </div>
+
+        <div *ngIf="!loading && sessions.length === 0" class="empty-state">
+          <p>No hay sesiones activas en este momento.</p>
+        </div>
+
+        <div *ngIf="!loading && sessions.length > 0">
+          <mat-table [dataSource]="sessions">
+            <ng-container matColumnDef="id">
+              <mat-header-cell *matHeaderCellDef>ID</mat-header-cell>
+              <mat-cell *matCellDef="let session">{{ session.id }}</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="websiteUrl">
+              <mat-header-cell *matHeaderCellDef>Sitio Web</mat-header-cell>
+              <mat-cell *matCellDef="let session">{{ session.websiteUrl }}</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="visitorName">
+              <mat-header-cell *matHeaderCellDef>Visitante</mat-header-cell>
+              <mat-cell *matCellDef="let session">{{ session.visitorName }}</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="visitorEmail">
+              <mat-header-cell *matHeaderCellDef>Email</mat-header-cell>
+              <mat-cell *matCellDef="let session">{{ session.visitorEmail }}</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <mat-header-cell *matHeaderCellDef>Estado</mat-header-cell>
+              <mat-cell *matCellDef="let session">
+                <mat-chip color="primary">{{ session.status }}</mat-chip>
+              </mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <mat-header-cell *matHeaderCellDef>Acciones</mat-header-cell>
+              <mat-cell *matCellDef="let session">
+                <button mat-icon-button color="primary" (click)="assignAgent(session.id)" title="Asignar Agente">
+                  <mat-icon>person_add</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="closeSession(session.id)" title="Cerrar Sesión">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </mat-cell>
+            </ng-container>
+
+            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+          </mat-table>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

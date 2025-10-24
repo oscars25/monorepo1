@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # ------------------------------------
+  # 1. SERVICIO DE BASE DE DATOS (PostgreSQL)
+  # ------------------------------------
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: monorepo_db
+    ports:
+      - "5432:5432" 
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  # ------------------------------------
+  # 2. SERVICIO BACKEND (Spring Boot)
+  # ------------------------------------
+  backend:
+    build:
+      context: ./chat-widget-monorepo/chat-widget-backend
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db 
+    volumes:
+      - ./chat-widget-monorepo/chat-widget-backend:/app # Mapeo para desarrollo
+
+  # ------------------------------------
+  # 3. SERVICIO FRONTEND (Angular/Nginx)
+  # ------------------------------------
+  frontend:
+    build:
+      context: ./chat-widget-monorepo/frontend-dashboard
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "80:80" # El Frontend se accede en http://localhost
+    depends_on:
+      - backend 
+    volumes:
+      # Monta el archivo de configuración de Nginx en el contenedor
+      - ./chat-widget-monorepo/frontend-dashboard/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+
+volumes: # <--- ¡IMPORTANTE! Esta etiqueta debe estar ALINEADA con 'version:' y 'services:'
+  db-data:

@@ -82,4 +82,16 @@ public class ChatSessionService {
     public List<Message> getMessagesBySessionId(String sessionId) {
         return messageRepository.findMessagesBySessionId(sessionId);
     }
+
+    public ChatSession updateSessionVisitorInfo(String sessionId, String visitorName, String visitorEmail) {
+        Optional<ChatSession> sessionOpt = chatSessionRepository.findBySessionId(sessionId);
+        if (sessionOpt.isPresent()) {
+            ChatSession session = sessionOpt.get();
+            session.setVisitorName(visitorName);
+            session.setVisitorEmail(visitorEmail);
+            session.setUpdatedAt(LocalDateTime.now());
+            return chatSessionRepository.save(session);
+        }
+        throw new IllegalArgumentException("Sesión no encontrada");
+    }
 }
