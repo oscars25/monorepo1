@@ -30,16 +30,21 @@ public class MessageController {
             @RequestBody CreateMessageRequest request,
             Authentication authentication) {
 
-        String username = authentication.getName();
-        // En una implementación real, obtendríamos el usuario completo desde la base de datos
-        User user = new User();
-        user.setUsername(username);
+        // Para visitantes, creamos un usuario temporal sin persistir en la base de datos
+        User visitorUser = new User();
+        visitorUser.setId(0L); // ID temporal
+        visitorUser.setUsername(request.getVisitorName() != null ? request.getVisitorName() : "Visitante");
+        visitorUser.setFullName(request.getVisitorName() != null ? request.getVisitorName() : "Visitante");
+        visitorUser.setEmail("visitor@example.com"); // Email genérico para visitantes
+        visitorUser.setPassword(""); // Sin contraseña para visitantes
+        visitorUser.setEnabled(true);
 
-        Message message = messageService.createMessage(
+        Message message = messageService.createMessageForVisitor(
                 request.getSessionId(),
-                user,
+                visitorUser,
                 request.getContent(),
-                request.getIsFromAgent()
+                request.getIsFromAgent(),
+                request.getVisitorName() != null ? request.getVisitorName() : "Visitante"
         );
 
         return ResponseEntity.ok(message);
@@ -50,22 +55,29 @@ public class MessageController {
             @PathVariable String sessionId,
             Authentication authentication) {
 
-        String username = authentication.getName();
+        // No requerimos autenticación para obtener mensajes de una sesión
 
         // Obtener todos los mensajes de la sesión
         List<Map<String, Object>> messages = messageService.getMessagesBySessionId(sessionId)
                 .stream()
-                .map(message -> Map.of(
-                        "id", message.getId(),
-                        "content", message.getContent(),
-                        "isFromAgent", message.isFromAgent(),
-                        "createdAt", message.getCreatedAt(),
-                        "user", Map.of(
-                                "id", message.getUser().getId(),
-                                "username", message.getUser().getUsername(),
-                                "fullName", message.getUser().getFullName()
-                        )
-                ))
+                .map(message -> {
+                    // Para mensajes de visitantes, usar el nombre del visitante si está disponible
+                    String displayName = message.getVisitorName() != null ? 
+                            message.getVisitorName() : 
+                            message.getUser().getFullName();
+
+                    return Map.of(
+                            "id", message.getId(),
+                            "content", message.getContent(),
+                            "isFromAgent", message.isFromAgent(),
+                            "createdAt", message.getCreatedAt(),
+                            "user", Map.of(
+                                    "id", message.getUser().getId(),
+                                    "username", message.getUser().getUsername(),
+                                    "fullName", displayName
+                            )
+                    );
+                })
                 .toList();
 
         return ResponseEntity.ok(messages);
@@ -154,6 +166,7 @@ public class MessageController {
         private String sessionId;
         private String content;
         private boolean isFromAgent;
+        private String visitorName;
 
         // Getters y setters
         public String getSessionId() { return sessionId; }
@@ -164,6 +177,9 @@ public class MessageController {
 
         public boolean getIsFromAgent() { return isFromAgent; }
         public void setIsFromAgent(boolean isFromAgent) { this.isFromAgent = isFromAgent; }
+
+        public String getVisitorName() { return visitorName; }
+        public void setVisitorName(String visitorName) { this.visitorName = visitorName; }
     }
 
     public static class UpdateMessageRequest {

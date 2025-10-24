@@ -1,0 +1,40 @@
+.unauthorized-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.unauthorized-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+
+  .icon {
+    margin-bottom: 1rem;
+
+    .error-icon {
+      font-size: 48px;
+      color: #f44336;
+    }
+  }
+
+  h1 {
+    margin: 0 0 1rem 0;
+    color: #333;
+  }
+
+  p {
+    margin: 0 0 1.5rem 0;
+    color: #666;
+  }
+
+  button {
+    width: 100%;
+  }
+}

@@ -1,0 +1,57 @@
+<div class="login-container">
+  <div class="login-background">
+    <div class="shape"></div>
+    <div class="shape"></div>
+  </div>
+  
+  <div class="login-card">
+    <div class="login-header">
+      <div class="logo-container">
+        <div class="logo">
+          <mat-icon>chat</mat-icon>
+        </div>
+        <h2>Chat Widget</h2>
+      </div>
+      <p>Accede al sistema de chat</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Usuario</mat-label>
+          <input matInput formControlName="username" placeholder="Ingresa tu usuario">
+          <mat-icon matSuffix>person</mat-icon>
+          <mat-error *ngIf="loginForm.get('username')?.hasError('required')">
+            El usuario es requerido
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-group">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contraseña</mat-label>
+          <input matInput type="password" formControlName="password" placeholder="Ingresa tu contraseña">
+          <mat-icon matSuffix>lock</mat-icon>
+          <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+            La contraseña es requerida
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div *ngIf="error" class="error-message">
+        <mat-icon>warning</mat-icon>
+        {{ error }}
+      </div>
+
+      <button mat-raised-button color="primary" type="submit" [disabled]="loading || loginForm.invalid" class="login-button">
+        <mat-icon *ngIf="!loading">login</mat-icon>
+        <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+        <span *ngIf="!loading">Iniciar Sesión</span>
+      </button>
+    </form>
+    
+    <div class="login-footer">
+      <p>© 2025 Chat Widget. Todos los derechos reservados.</p>
+    </div>
+  </div>
+</div>

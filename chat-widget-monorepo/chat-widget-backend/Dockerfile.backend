@@ -1,0 +1,23 @@
+# 1. ETAPA DE CONSTRUCCIÓN
+FROM maven:3.9.9-eclipse-temurin-21 AS build
+WORKDIR /app
+
+COPY pom.xml .
+RUN mvn dependency:go-offline
+
+COPY . .
+RUN mvn clean package -DskipTests
+
+# 2. ETAPA DE EJECUCIÓN (RUNTIME STAGE)
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+
+# Copia el jar con su nombre exacto
+COPY --from=build /app/target/chat-widget-backend-0.0.1-SNAPSHOT.jar app.jar
+
+# Asegura permisos de lectura
+RUN chmod 644 app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "app.jar"]

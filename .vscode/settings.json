@@ -11,5 +11,6 @@
             "database": "chat_widget_db",
             "username": "postgres"
         }
-    ]
+    ],
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

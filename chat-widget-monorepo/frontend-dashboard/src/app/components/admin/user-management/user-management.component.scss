@@ -1,0 +1,125 @@
+ .dashboard-container {
+  padding: 20px;
+}
+
+.dashboard-header {
+  margin-bottom: 20px;
+}
+
+.dashboard-header h1 {
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+.dashboard-header p {
+  margin: 0;
+  color: #666;
+}
+
+.actions-bar {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.mat-mdc-dialog-container {
+  max-width: 500px;
+}
+
+/* Estilos para la tabla de usuarios */
+.mat-mdc-table {
+  width: 100%;
+}
+
+.mat-mdc-cell {
+  padding: 10px;
+}
+
+.mat-mdc-header-cell {
+  font-weight: bold;
+  color: #555;
+}
+
+.error-message {
+  color: #d32f2f;
+  background-color: #ffebee;
+  border-left: 4px solid #d32f2f;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+}
+
+/* Estilos para el panel de mensajes */
+.messages-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sessions-section {
+  margin-bottom: 20px;
+}
+
+.message-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.message-author {
+  font-weight: 500;
+}
+
+.message-date {
+  font-style: italic;
+}
+
+/* Estilos para el acordeón de sesiones */
+.mat-expansion-panel-header {
+  height: auto !important;
+  padding: 10px 15px;
+}
+
+.mat-expansion-panel-header-title {
+  margin-right: 10px;
+}
+
+.mat-expansion-panel-header-description {
+  flex-grow: 1;
+}
+
+.mat-list-item {
+  height: auto !important;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.mat-list-item:last-child {
+  border-bottom: none;
+}
+
+/* Estilos para las pestañas */
+.mat-mdc-tab-group {
+  margin-top: 10px;
+}
+
+.mat-mdc-tab-body-wrapper {
+  padding-top: 20px;
+}
