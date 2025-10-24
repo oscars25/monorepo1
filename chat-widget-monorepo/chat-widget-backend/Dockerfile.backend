@@ -1,30 +1,23 @@
-# 1. ETAPA DE CONSTRUCCIÓN (BUILD STAGE)
-# Usamos Maven 3.9.9 con Java 21 para compilar
+# 1. ETAPA DE CONSTRUCCIÓN
 FROM maven:3.9.9-eclipse-temurin-21 AS build
 WORKDIR /app
 
-# Copia los archivos de configuración de Maven (pom.xml) para cachear dependencias
 COPY pom.xml .
 RUN mvn dependency:go-offline
 
-# Copia el código fuente completo del backend
 COPY . .
-
-# Compila el proyecto Spring Boot y crea el archivo JAR ejecutable
-RUN mvn package -DskipTests
-
-# -----------------------------------------------------------
+RUN mvn clean package -DskipTests
 
 # 2. ETAPA DE EJECUCIÓN (RUNTIME STAGE)
-# Usamos una imagen ligera de Java 21 JRE para la ejecución
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-# Copia el JAR del proyecto compilado en la etapa 'build'
-COPY --from=build /app/target/*.jar app.jar
+# Copia el jar con su nombre exacto
+COPY --from=build /app/target/chat-widget-backend-0.0.1-SNAPSHOT.jar app.jar
 
-# Expone el puerto por defecto de Spring Boot
+# Asegura permisos de lectura
+RUN chmod 644 app.jar
+
 EXPOSE 8080
 
-# Comando para ejecutar la aplicación Spring Boot
 ENTRYPOINT ["java", "-jar", "app.jar"]
