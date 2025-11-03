@@ -42,7 +42,7 @@ public class AuthService implements UserDetailsService {
 
         User user = new User();
         user.setUsername(username);
-        user.setPassword(password); // Guardar contraseña sin encriptar
+        user.setPassword(passwordEncoder.encode(password));
         user.setEmail(email);
         user.setRole(role);
         user.setFullName(fullName);
