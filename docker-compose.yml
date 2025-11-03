@@ -18,6 +18,7 @@ services:
 
   backend:
     build:
+      # 👇 ESTA es la ruta que tienes realmente en el proyecto que me mandaste
       context: ./chat-widget-monorepo/chat-widget-backend
       dockerfile: Dockerfile.backend
     ports:
@@ -25,10 +26,12 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    # Volumen de desarrollo comentado para evitar sobrescribir /app dentro del contenedor
-    # Si necesitas montar en desarrollo, monta en otra ruta y ajusta el Dockerfile/backend para usar mvn local.
-    # volumes:
-    #   - ./chat-widget-monorepo/chat-widget-backend:/app
+    environment:
+      # 👇 ahora sí coincide con el contenedor "db"
+      DATABASE_URL: jdbc:postgresql://db:5432/monorepo_db
+      DATABASE_USERNAME: user
+      DATABASE_PASSWORD: password
+      SPRING_PROFILES_ACTIVE: prod
 
   frontend:
     build:
