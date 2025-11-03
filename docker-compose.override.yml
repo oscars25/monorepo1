@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgres:15
+    container_name: chatwidget-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${LOCAL_DB_USER:-user}
+      POSTGRES_PASSWORD: ${LOCAL_DB_PASSWORD:-password}
+      POSTGRES_DB: ${LOCAL_DB_NAME:-monorepo_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${LOCAL_DB_USER:-user} -d ${LOCAL_DB_NAME:-monorepo_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # aquí FORZAMOS a que use la DB del contenedor
+      DATABASE_URL: jdbc:postgresql://db:5432/${LOCAL_DB_NAME:-monorepo_db}
+      DATABASE_USERNAME: ${LOCAL_DB_USER:-user}
+      DATABASE_PASSWORD: ${LOCAL_DB_PASSWORD:-password}
+
+volumes:
+  db-data:

@@ -1,48 +1,27 @@
-services: 
-  db:
-    image: postgres:15
-    restart: always
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: monorepo_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - db-data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d monorepo_db"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
+services:
   backend:
     build:
-      # 👇 ESTA es la ruta que tienes realmente en el proyecto que me mandaste
       context: ./chat-widget-monorepo/chat-widget-backend
       dockerfile: Dockerfile.backend
+    container_name: chatwidget-backend
     ports:
       - "8080:8080"
-    depends_on:
-      db:
-        condition: service_healthy
     environment:
-      # 👇 ahora sí coincide con el contenedor "db"
-      DATABASE_URL: jdbc:postgresql://db:5432/monorepo_db
-      DATABASE_USERNAME: user
-      DATABASE_PASSWORD: password
       SPRING_PROFILES_ACTIVE: prod
+      # leerá del .env, pero dejo valores por defecto con tus credenciales
+      DATABASE_URL: ${DATABASE_URL:-jdbc:postgresql://ep-muddy-bush-afqgdsmi-pooler.c-2.us-west-2.aws.neon.tech:5432/neondb?sslmode=require&channel_binding=require}
+      DATABASE_USERNAME: ${DATABASE_USERNAME:-neondb_owner}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-npg_MNPE3f2VSOqz}
 
   frontend:
     build:
       context: ./chat-widget-monorepo/frontend-dashboard
       dockerfile: Dockerfile.frontend
-    ports:
-      - "80:80"
+    container_name: chatwidget-frontend
     depends_on:
       - backend
+    ports:
+      - "80:80"
     volumes:
       - ./chat-widget-monorepo/frontend-dashboard/nginx.conf:/etc/nginx/conf.d/default.conf:ro
 
-volumes:
-  db-data:
