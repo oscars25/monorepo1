@@ -59,10 +59,13 @@
             <ng-container matColumnDef="actions">
               <mat-header-cell *matHeaderCellDef>Acciones</mat-header-cell>
               <mat-cell *matCellDef="let session">
-                <button mat-icon-button color="primary" (click)="assignAgent(session.id)" title="Asignar Agente">
+                <button mat-icon-button color="primary" (click)="viewConversation(session)" title="Ver conversación">
+                  <mat-icon>chat</mat-icon>
+                </button>
+                <button mat-icon-button color="primary" (click)="assignAgent(session.sessionId || session.id)" title="Asignar Agente">
                   <mat-icon>person_add</mat-icon>
                 </button>
-                <button mat-icon-button color="warn" (click)="closeSession(session.id)" title="Cerrar Sesión">
+                <button mat-icon-button color="warn" (click)="closeSession(session.sessionId || session.id)" title="Cerrar Sesión">
                   <mat-icon>close</mat-icon>
                 </button>
               </mat-cell>

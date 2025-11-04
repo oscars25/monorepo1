@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo - Chat Widget | Hola Mundo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            animation: fadeInDown 1s ease;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease;
+        }
+
+        .content {
+            padding: 60px 40px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .hero h2 {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 20px;
+            animation: fadeIn 1.5s ease;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #666;
+            line-height: 1.8;
+            max-width: 800px;
+            margin: 0 auto;
+            animation: fadeIn 2s ease;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 60px;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeInUp 1s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+            margin-top: 60px;
+            border-radius: 15px;
+        }
+
+        .cta-section h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .cta-section p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .cta-button {
+            background: white;
+            color: #667eea;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .widget-info {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 40px 0;
+        }
+
+        .widget-info h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .widget-info p {
+            color: #856404;
+            margin: 0;
+        }
+
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 30px 40px;
+        }
+
+        footer p {
+            margin: 10px 0;
+            opacity: 0.8;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .hero h2 {
+                font-size: 1.8rem;
+            }
+
+            .content {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌟 ¡Hola Mundo! 🌟</h1>
+            <p>Bienvenido a nuestra página de demostración</p>
+        </header>
+
+        <div class="content">
+            <div class="hero">
+                <h2>Descubre Nuestro Chat Widget</h2>
+                <p>
+                    Esta es una página de demostración donde puedes probar nuestro increíble chat widget en vivo.
+                    Haz clic en el botón flotante en la esquina inferior derecha para comenzar una conversación
+                    con nuestro equipo de soporte. ¡Es fácil, rápido y completamente funcional!
+                </p>
+            </div>
+
+            <div class="widget-info">
+                <h3>💬 ¿Ves el botón flotante?</h3>
+                <p>
+                    Haz clic en el icono de chat en la esquina inferior derecha de la pantalla para abrir el widget
+                    y empezar a chatear. Puedes enviar mensajes y recibir respuestas de nuestros agentes en tiempo real.
+                </p>
+            </div>
+
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h3>Rápido y Eficiente</h3>
+                    <p>
+                        Nuestro chat widget se carga instantáneamente y proporciona respuestas en tiempo real
+                        sin retrasos ni complicaciones.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>Diseño Moderno</h3>
+                    <p>
+                        Con un diseño limpio y atractivo que se adapta perfectamente a cualquier sitio web
+                        y se ve genial en todos los dispositivos.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Seguro y Confiable</h3>
+                    <p>
+                        Toda la comunicación está cifrada y segura. Tu privacidad es nuestra prioridad número uno.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h3>Chat en Tiempo Real</h3>
+                    <p>
+                        Conversa con agentes reales que están listos para ayudarte con cualquier pregunta
+                        o inquietud que puedas tener.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>Responsive</h3>
+                    <p>
+                        Funciona perfectamente en computadoras de escritorio, tablets y teléfonos móviles.
+                        ¡Chatea desde donde quieras!
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Fácil Integración</h3>
+                    <p>
+                        Integra nuestro widget en tu sitio web con solo unas pocas líneas de código.
+                        ¡Es así de simple!
+                    </p>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <h2>¿Listo para probar el chat?</h2>
+                <p>
+                    Haz clic en el botón de chat flotante en la esquina inferior derecha
+                    y comienza una conversación con nosotros ahora mismo.
+                </p>
+                <button class="cta-button" onclick="alert('👉 Mira la esquina inferior derecha de la pantalla y haz clic en el icono de chat!')">
+                    <span>👉</span>
+                    <span>Abrir Chat</span>
+                </button>
+            </div>
+        </div>
+
+        <footer>
+            <p><strong>Chat Widget Demo</strong></p>
+            <p>© 2025 - Todos los derechos reservados</p>
+            <p>Desarrollado con ❤️ para demostración</p>
+        </footer>
+    </div>
+
+    <!-- Aquí se insertará el widget de chat -->
+    <div id="chat-widget-root"></div>
+
+    <!-- Script para cargar el widget -->
+    <script>
+        // Configuración del widget
+        window.CHAT_API_URL = 'http://localhost:8080';
+        
+        console.log('Página de demo cargada');
+        console.log('El widget de chat debería aparecer en la esquina inferior derecha');
+        
+        // Nota: El widget se carga automáticamente desde la aplicación Angular
+        // En producción, cargarías el widget con un script externo
+    </script>
+</body>
+</html>

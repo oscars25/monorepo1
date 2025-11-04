@@ -1,4 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { ChatSessionService } from '../../../services/chat-session.service';
 import { MatCardModule } from '@angular/material/card';
@@ -41,7 +42,8 @@ export class AdminDashboardComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private chatSessionService: ChatSessionService
+    private chatSessionService: ChatSessionService,
+    private router: Router
   ) {
     this.user = this.authService.getCurrentUser();
   }
@@ -79,6 +81,11 @@ export class AdminDashboardComponent implements OnInit {
         this.loadSessions();
       }
     });
+  }
+
+  viewConversation(session: ChatSession): void {
+    const id = session.sessionId || (session as any).id;
+    this.router.navigate(['/agent/dashboard'], { queryParams: { session: id } });
   }
 
   logout(): void {

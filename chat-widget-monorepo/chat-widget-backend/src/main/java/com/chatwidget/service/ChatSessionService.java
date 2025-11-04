@@ -80,6 +80,7 @@ public class ChatSessionService {
     }
 
     public List<Message> getMessagesBySessionId(String sessionId) {
+        // Buscar por el identificador lógico de la sesión (UUID String)
         return messageRepository.findMessagesBySessionId(sessionId);
     }
 

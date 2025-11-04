@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { DOCUMENT } from '@angular/common';
+import { ApiConfigService } from '../../../services/api-config.service';
 
 // Interfaces definidas localmente para el widget
 interface ChatSession {
@@ -61,9 +62,11 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   // Datos del visitante
   websiteUrl = '';
   private isBrowser: boolean;
+  private apiBase: string;
 
   constructor(
     private http: HttpClient,
+    private apiConfig: ApiConfigService,
     @Optional() @Inject(DOCUMENT) private document: any
   ) {
     // Verificar si estamos en el navegador o en el servidor
@@ -76,6 +79,9 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
       // En caso de error, asumimos que estamos en el servidor
       this.isBrowser = false;
     }
+    
+    // Obtener la URL base del API desde el servicio de configuración
+    this.apiBase = this.apiConfig.getApiUrl();
   }
 
   ngOnInit(): void {
@@ -117,7 +123,9 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   }
 
   createNewSession(): void {
-    console.log('Creando nueva sesión de chat...');
+    console.log('🔵 Creando nueva sesión de chat...');
+    console.log('🔵 URL del API:', `${this.apiBase}/api/sessions`);
+    console.log('🔵 Website URL:', this.websiteUrl);
     this.loading = true;
     
     // Crear una sesión sin autenticación para visitantes
@@ -126,25 +134,33 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
       // No incluir token de autenticación para visitantes
     });
     
-    this.http.post<any>('http://localhost:8080/api/sessions', {
+    const payload = {
       websiteUrl: this.websiteUrl,
       visitorName: 'Visitante',
       visitorEmail: ''
-    }, { headers }).subscribe({
+    };
+    
+    console.log('🔵 Payload:', payload);
+    
+  this.http.post<any>(`${this.apiBase}/api/sessions`, payload, { headers }).subscribe({
       next: (session) => {
-        console.log('Sesión creada exitosamente:', session);
+        console.log('✅ Sesión creada exitosamente:', session);
         this.session = session;
         if (this.isBrowser) {
           localStorage.setItem('chat_session_id', session.sessionId || session.id);
+          console.log('✅ SessionId guardado en localStorage:', session.sessionId || session.id);
         }
         this.loading = false;
         // Cargar los mensajes después de crear la sesión
         this.loadMessages();
       },
       error: (error) => {
-        console.error('Error al crear sesión de chat:', error);
+        console.error('❌ Error al crear sesión de chat:', error);
+        console.error('❌ Error status:', error.status);
+        console.error('❌ Error message:', error.message);
+        console.error('❌ Error completo:', JSON.stringify(error, null, 2));
         this.loading = false;
-        // Si hay un error, intentamos crear una sesión de emergencia
+        // Si hay un error, mostrar alerta
         this.createEmergencySession();
       }
     });
@@ -159,7 +175,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
       // No incluir token de autenticación para visitantes
     });
 
-    this.http.get<any>(`http://localhost:8080/api/sessions/${sessionId}`, { headers }).subscribe({
+  this.http.get<any>(`${this.apiBase}/api/sessions/${sessionId}`, { headers }).subscribe({
       next: (session) => {
         console.log('Sesión cargada exitosamente:', session);
         this.session = session;
@@ -190,7 +206,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
       // No incluir token de autenticación para visitantes
     });
     
-    this.http.get<any[]>(`http://localhost:8080/api/messages/session/${this.session.sessionId || this.session.id}`, { headers }).subscribe({
+  this.http.get<any[]>(`${this.apiBase}/api/messages/session/${this.session.sessionId || this.session.id}`, { headers }).subscribe({
       next: (messages) => {
         console.log(`Mensajes cargados: ${messages.length} mensajes`);
         // Verificar si hay nuevos mensajes
@@ -227,7 +243,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
       // No incluir token de autenticación para visitantes
     });
     
-    this.http.get<any[]>(`http://localhost:8080/api/messages/session/${this.session.sessionId || this.session.id}`, { headers }).subscribe({
+  this.http.get<any[]>(`${this.apiBase}/api/messages/session/${this.session.sessionId || this.session.id}`, { headers }).subscribe({
       next: (messages) => {
         console.log(`Mensajes refrescados: ${messages.length} mensajes`);
         // Actualizar la lista de mensajes
@@ -267,7 +283,8 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
 
     // Ya no es necesario verificar el nombre del visitante
 
-    console.log(`Enviando mensaje: "${this.newMessage}" a la sesión: ${this.session.sessionId || this.session.id}`);
+    console.log(`🟢 Enviando mensaje: "${this.newMessage}" a la sesión: ${this.session.sessionId || this.session.id}`);
+    console.log('🟢 Session object:', this.session);
     
     // Mostrar indicador de carga
     this.messageLoading = true;
@@ -301,27 +318,47 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
       // No incluir token de autenticación para visitantes
     });
     
-    this.http.post<any>('http://localhost:8080/api/messages', {
+    const payload = {
       sessionId: this.session.sessionId || this.session.id,
       content: messageContent,
       isFromAgent: false,
       visitorName: 'Visitante'
-    }, { headers }).subscribe({
+    };
+    
+    console.log('🟢 Payload del mensaje:', payload);
+    console.log('🟢 URL:', `${this.apiBase}/api/messages`);
+    
+  this.http.post<any>(`${this.apiBase}/api/messages`, payload, { headers }).subscribe({
       next: (response) => {
-        console.log('Mensaje enviado exitosamente:', response);
+        console.log('✅ Mensaje enviado exitosamente:', response);
         this.messageLoading = false;
-        // Recargar mensajes para obtener el estado actualizado
-        setTimeout(() => this.loadMessages(), 500);
+        
+        // Agregar el mensaje real a la lista inmediatamente (reemplazar el temporal)
+        const messageIndex = this.messages.findIndex(m => m.id === tempMessage.id);
+        if (messageIndex !== -1) {
+          this.messages[messageIndex] = response;
+        } else {
+          this.messages.push(response);
+        }
+        
+        // Desplazar hacia abajo
+        setTimeout(() => this.scrollToBottom(), 50);
       },
       error: (error) => {
-        console.error('Error al enviar mensaje:', error);
+        console.error('❌ Error al enviar mensaje:', error);
+        console.error('❌ Error status:', error.status);
+        console.error('❌ Error message:', error.message);
+        console.error('❌ Error completo:', JSON.stringify(error, null, 2));
         this.messageLoading = false;
-        // Mostrar mensaje de error
-        // Aquí podrías agregar una notificación de error
         
-        // Si hay un error al enviar el mensaje, lo mostramos como enviado de todos modos
-        // para que el usuario no piense que no se ha enviado
-        console.log('Mensaje mostrado localmente a pesar del error');
+        // Eliminar el mensaje temporal si hay error
+        const messageIndex = this.messages.findIndex(m => m.id === tempMessage.id);
+        if (messageIndex !== -1) {
+          this.messages.splice(messageIndex, 1);
+        }
+        
+        // Mostrar mensaje de error al usuario
+        alert('Error al enviar el mensaje. Por favor, intenta de nuevo.');
       }
     });
   }
@@ -329,24 +366,29 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   toggleWidget(): void {
     this.widgetVisible = !this.widgetVisible;
 
-    // Si se está abriendo el widget y no hay una sesión activa, crear una nueva
-    if (this.widgetVisible && !this.session) {
-      // Verificar si hay una sesión guardada en localStorage
-      if (this.isBrowser) {
-        const savedSessionId = localStorage.getItem('chat_session_id');
-        if (savedSessionId) {
-          console.log('Cargando sesión guardada:', savedSessionId);
-          this.loadSession(savedSessionId);
+    // Si se está abriendo el widget, expandirlo automáticamente
+    if (this.widgetVisible) {
+      this.minimized = false;
+      
+      // Si no hay una sesión activa, crear una nueva
+      if (!this.session) {
+        // Verificar si hay una sesión guardada en localStorage
+        if (this.isBrowser) {
+          const savedSessionId = localStorage.getItem('chat_session_id');
+          if (savedSessionId) {
+            console.log('Cargando sesión guardada:', savedSessionId);
+            this.loadSession(savedSessionId);
+          } else {
+            // Crear una sesión de emergencia inmediatamente para que el usuario pueda empezar a chatear
+            // sin tener que esperar a que se conecte con el backend
+            this.createEmergencySession();
+            // También intentar crear una sesión normal en segundo plano
+            this.createNewSession();
+          }
         } else {
-          // Crear una sesión de emergencia inmediatamente para que el usuario pueda empezar a chatear
-          // sin tener que esperar a que se conecte con el backend
           this.createEmergencySession();
-          // También intentar crear una sesión normal en segundo plano
           this.createNewSession();
         }
-      } else {
-        this.createEmergencySession();
-        this.createNewSession();
       }
     }
   }
@@ -372,29 +414,15 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
 
   // Método de emergencia para crear una sesión si el backend no está disponible
   createEmergencySession(): void {
-    console.log('Creando sesión de emergencia...');
-    const emergencySession = {
-      id: 'emergency-' + Date.now(),
-      sessionId: 'emergency-' + Date.now(),
-      websiteUrl: this.websiteUrl,
-      visitorName: 'Visitante',
-      visitorEmail: '',
-      status: 'ACTIVE',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
+    console.error('⚠️ NO SE PUDO CONECTAR CON EL SERVIDOR - El chat no funcionará correctamente');
+    console.error('⚠️ Por favor verifica que el backend esté corriendo en:', this.apiBase);
     
-    this.session = emergencySession;
-    if (this.isBrowser) {
-      localStorage.setItem('chat_session_id', emergencySession.sessionId);
-    }
+    // NO crear sesión de emergencia - esto solo causará más errores
+    this.session = null;
     this.loading = false;
-    console.log('Sesión de emergencia creada:', emergencySession);
     
-    // Forzar la detección de cambios para actualizar la vista
-    setTimeout(() => {
-      console.log('Sesión activa después de crear sesión de emergencia:', this.session);
-    }, 100);
+    // Mostrar mensaje de error al usuario
+    alert('Error: No se pudo conectar con el servidor de chat. Por favor, recarga la página o contacta al administrador.');
   }
 
 

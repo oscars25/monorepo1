@@ -4,14 +4,21 @@ import { Observable } from 'rxjs';
 import { User } from './auth.service';
 import { AuthService } from './auth.service';
 import { CustomCookieService } from './cookie.service';
+import { ApiConfigService } from './api-config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://localhost:8080/api/users';
+  private apiUrl: string;
 
-  constructor(private http: HttpClient, private cookieService: CustomCookieService) {}
+  constructor(
+    private http: HttpClient, 
+    private cookieService: CustomCookieService,
+    private apiConfig: ApiConfigService
+  ) {
+    this.apiUrl = this.apiConfig.getFullUrl('/api/users');
+  }
 
   private getHeaders(): HttpHeaders {
     const token = this.cookieService.get('auth_token');

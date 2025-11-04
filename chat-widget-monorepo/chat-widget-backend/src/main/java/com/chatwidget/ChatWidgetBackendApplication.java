@@ -46,6 +46,19 @@ public class ChatWidgetBackendApplication {
                 userRepository.save(admin);
                 System.out.println("--- USUARIO 'admin' CREADO AUTOMÁTICAMENTE ---");
             }
+
+            // Asegurar un usuario 'visitor' para asociar mensajes de visitantes anónimos
+            if (userRepository.findByUsername("visitor").isEmpty()) {
+                User visitor = new User();
+                visitor.setUsername("visitor");
+                visitor.setPassword(passwordEncoder.encode("visitor"));
+                visitor.setEmail("visitor@chat.com");
+                visitor.setRole(User.Role.AGENT); // rol neutro disponible
+                visitor.setFullName("Visitante");
+                visitor.setEnabled(true);
+                userRepository.save(visitor);
+                System.out.println("--- USUARIO 'visitor' CREADO AUTOMÁTICAMENTE ---");
+            }
         };
     }
 }

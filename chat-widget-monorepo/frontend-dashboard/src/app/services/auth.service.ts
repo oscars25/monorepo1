@@ -4,6 +4,7 @@ import { Observable, of, BehaviorSubject } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 import { jwtDecode } from 'jwt-decode';
 import { CustomCookieService } from './cookie.service';
+import { ApiConfigService } from './api-config.service';
 import { DOCUMENT } from '@angular/common';
 
 export interface User {
@@ -36,7 +37,7 @@ export interface AuthResponse {
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/api/auth';
+  private apiUrl: string;
   private currentUserSubject: User | null = null;
   private currentUserSubject$ = new BehaviorSubject<User | null>(null);
   public user$ = this.currentUserSubject$.asObservable();
@@ -46,8 +47,12 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private cookieService: CustomCookieService,
+    private apiConfig: ApiConfigService,
     @Optional() @Inject(DOCUMENT) private document: any
   ) {
+    this.apiUrl = this.apiConfig.getFullUrl('/api/auth');
+    console.log('[AuthService] API URL configurada:', this.apiUrl);
+    
     // Verificar si estamos en el navegador o en el servidor
     try {
       this.isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined';

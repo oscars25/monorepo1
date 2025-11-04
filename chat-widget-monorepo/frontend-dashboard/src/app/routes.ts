@@ -12,13 +12,16 @@ import { AuthService } from './services/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { CustomCookieService } from './services/cookie.service';
 import { provideHttpClient } from '@angular/common/http';
+import { DemoPageComponent } from './components/demo-page/demo-page.component';
 
 
 export const routes: Routes = [
+  // Ruta pública para la página de demostración
+  { path: 'demo', component: DemoPageComponent },
   { path: 'login', component: LoginComponent },
   {
     path: 'admin/dashboard',
-    component: UserManagementComponent,
+    component: AdminDashboardComponent,
     canActivate: [AuthGuard, RoleGuard],
     data: { expectedRole: 'ADMIN' },
     resolve: {
@@ -72,9 +75,10 @@ export const routes: Routes = [
   },
   {
     path: 'agent/dashboard',
-    component: UserManagementComponent,
+    component: AgentDashboardComponent,
     canActivate: [AuthGuard, RoleGuard],
-    data: { expectedRole: 'AGENT' },
+    // Permitir que tanto AGENT como ADMIN ingresen al panel de agente
+    data: { expectedRoles: ['AGENT', 'ADMIN'] },
     resolve: {
       user: () => {
         const token = inject(CustomCookieService).get('auth_token');

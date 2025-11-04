@@ -12,10 +12,18 @@ export class RoleGuard implements CanActivate {
   ) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-    const expectedRole = route.data['expectedRole'] as string;
+    const expectedRole = route.data['expectedRole'] as string | undefined;
+    const expectedRoles = (route.data['expectedRoles'] as string[] | undefined) || (expectedRole ? [expectedRole] : undefined);
     
     if (this.authService.isAuthenticated()) {
-      if (this.authService.hasRole(expectedRole)) {
+      if (!expectedRoles || expectedRoles.length === 0) {
+        return true; // No role restriction specified
+      }
+
+      // Check if user has any of the allowed roles
+      const user = this.authService.getCurrentUser();
+      const role = user?.role;
+      if (role && expectedRoles.includes(role)) {
         return true;
       } else {
         // Redirigir a página de no autorizado

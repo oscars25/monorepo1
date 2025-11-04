@@ -123,6 +123,10 @@ button {
         border-radius: 18px 18px 0 18px;
         max-width: 70%;
       }
+
+      .message-meta {
+        text-align: right;
+      }
     }
 
     &.visitor-message {
@@ -135,6 +139,10 @@ button {
         padding: 0.5rem 1rem;
         border-radius: 18px 18px 18px 0;
         max-width: 70%;
+      }
+
+      .message-meta {
+        text-align: left;
       }
     }
 

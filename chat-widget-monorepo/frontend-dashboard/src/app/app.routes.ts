@@ -6,6 +6,7 @@ import { AdminDashboardComponent } from './components/admin/dashboard/admin-dash
 import { UserManagementComponent } from './components/admin/user-management/user-management.component';
 import { AgentDashboardComponent } from './components/agent/dashboard/agent-dashboard.component';
 import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
+import { DemoPageComponent } from './components/demo-page/demo-page.component';
 import { AuthGuard } from './guards/auth.guard';
 import { RoleGuard } from './guards/role.guard';
 import { AuthService } from './services/auth.service';
@@ -15,6 +16,7 @@ import { provideHttpClient } from '@angular/common/http';
 
 
 export const routes: Routes = [
+  { path: 'demo', component: DemoPageComponent },
   { path: 'login', component: LoginComponent },
   {
     path: 'admin/dashboard',

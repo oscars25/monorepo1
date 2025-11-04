@@ -3,8 +3,10 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CustomCookieService } from './cookie.service';
+import { ApiConfigService } from './api-config.service';
 
 export interface ChatSession {
+  sessionId: string;
   id: string;
   websiteUrl: string;
   visitorName: string;
@@ -42,9 +44,15 @@ export interface Message {
   providedIn: 'root'
 })
 export class ChatSessionService {
-  private apiUrl = 'http://localhost:8080/api/sessions';
+  private apiUrl: string;
 
-  constructor(private http: HttpClient, private cookieService: CustomCookieService) {}
+  constructor(
+    private http: HttpClient, 
+    private cookieService: CustomCookieService,
+    private apiConfig: ApiConfigService
+  ) {
+    this.apiUrl = this.apiConfig.getFullUrl('/api/sessions');
+  }
 
   private getHeaders(): HttpHeaders {
     const token = this.cookieService.get('auth_token');

@@ -19,13 +19,14 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     @Query("SELECT m FROM Message m WHERE m.isFromAgent = true ORDER BY m.createdAt ASC")
     List<Message> findAgentMessages();
 
-    @Query("SELECT m FROM Message m WHERE m.session.id = :sessionId ORDER BY m.createdAt ASC")
+    // Buscar por sessionId lógico (String), no por ID numérico
+    @Query("SELECT m FROM Message m WHERE m.session.sessionId = :sessionId ORDER BY m.createdAt ASC")
     List<Message> findMessagesBySessionId(@Param("sessionId") String sessionId);
 
-    @Query("SELECT m FROM Message m WHERE m.session.id = :sessionId AND m.isFromAgent = true ORDER BY m.createdAt ASC")
+    @Query("SELECT m FROM Message m WHERE m.session.sessionId = :sessionId AND m.isFromAgent = true ORDER BY m.createdAt ASC")
     List<Message> findAgentMessagesBySessionId(@Param("sessionId") String sessionId);
 
-    @Query("SELECT m FROM Message m WHERE m.session.id = :sessionId AND m.isFromAgent = false ORDER BY m.createdAt ASC")
+    @Query("SELECT m FROM Message m WHERE m.session.sessionId = :sessionId AND m.isFromAgent = false ORDER BY m.createdAt ASC")
     List<Message> findVisitorMessagesBySessionId(@Param("sessionId") String sessionId);
 
     // Cambiado: buscar por session.sessionId (campo String en ChatSession)

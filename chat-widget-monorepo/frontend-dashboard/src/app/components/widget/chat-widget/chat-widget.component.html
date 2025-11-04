@@ -34,7 +34,7 @@
             {{ message.content }}
           </div>
           <div class="message-meta">
-            {{ message.user.fullName }} - {{ message.createdAt | date:'short' }}
+            <span *ngIf="message.isFromAgent">Agente - </span>{{ message.createdAt | date:'short' }}
           </div>
         </div>
       </div>
