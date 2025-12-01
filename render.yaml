@@ -7,8 +7,6 @@ services:
     branch: staging
     plan: free
     autoDeploy: false
-    ports:
-      - 8080
 
   # Servicio Frontend (Angular)
   - type: web
@@ -18,5 +16,3 @@ services:
     branch: staging
     plan: free
     autoDeploy: false
-    ports:
-      - 80
