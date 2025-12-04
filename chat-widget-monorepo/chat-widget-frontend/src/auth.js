@@ -3,7 +3,7 @@ export function getToken() { return localStorage.getItem('jwt'); }
 
 export async function fetchMessages(sessionId) {
   const token = getToken();
-  const res = await fetch(`http://localhost:8080/api/messages/session/${sessionId}`, {
+  const res = await fetch(`https://monorepo1-caqf.onrender.com/api/messages/session/${sessionId}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',

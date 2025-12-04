@@ -245,7 +245,7 @@ Primero necesitas compilar el widget de Angular como un script standalone. Por a
     <!-- Script del widget -->
     <script>
         // Configuración
-        const API_URL = 'http://localhost:8080';  // Cambia esto en producción
+        const API_URL = 'http://https://monorepo1-caqf.onrender.com';  // Cambia esto en producción
         let chatSession = null;
         let messages = [];
         

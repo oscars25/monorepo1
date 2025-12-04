@@ -1,5 +1,5 @@
 export async function login(username, password) {
-  const res = await fetch('http://localhost:8080/api/auth/login', {
+  const res = await fetch('http://https://monorepo1-caqf.onrender.com/api/auth/login', {
     method: 'POST',
     // usar credentials:'include' sólo si el backend establece cookie httpOnly
     // credentials: 'include',
@@ -21,7 +21,7 @@ export async function login(username, password) {
 
 export async function fetchMessages(sessionId) {
   const token = localStorage.getItem('jwt');
-  const res = await fetch(`http://localhost:8080/api/messages/session/${sessionId}`, {
+  const res = await fetch(`https://monorepo1-caqf.onrender.com/api/messages/session/${sessionId}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
