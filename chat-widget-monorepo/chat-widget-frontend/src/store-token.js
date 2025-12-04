@@ -1,5 +1,5 @@
 export async function login(username, password) {
-  const res = await fetch('http://https://monorepo1-caqf.onrender.com/api/auth/login', {
+  const res = await fetch('https://monorepo1-caqf.onrender.com/api/auth/login', {
     method: 'POST',
     // usar credentials:'include' sólo si el backend establece cookie httpOnly
     // credentials: 'include',
