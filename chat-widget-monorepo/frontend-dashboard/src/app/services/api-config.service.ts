@@ -34,7 +34,7 @@ export class ApiConfigService {
         console.log('[ApiConfigService] Modo localhost - usando paths relativos (proxeado por nginx)');
       }
     } else {
-      this.API_BASE_URL = 'http://https://monorepo1-caqf.onrender.com/api/';
+      this.API_BASE_URL = 'https://monorepo1-caqf.onrender.com/api/';
       console.log('[ApiConfigService] Modo servidor SSR');
     }
   }
